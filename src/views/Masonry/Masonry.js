@@ -89,7 +89,7 @@ const Masonry = () => {
                 <Card className={classes.gridItem}>
                   <CardContent align="center">
                     <Typography>
-                      TOMB Price<small>(TWAP)</small>
+                      BLOOM Price<small>(TWAP)</small>
                     </Typography>
                     <Typography>{scalingFactor}</Typography>
                   </CardContent>

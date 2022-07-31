@@ -5027,7 +5027,7 @@
             "type": "address"
           }
         ],
-        "name": "pendingTOMB",
+        "name": "pendingBLOOM",
         "outputs": [
           {
             "internalType": "uint256",
@@ -5513,7 +5513,7 @@
             "type": "address"
           }
         ],
-        "name": "pendingTOMB",
+        "name": "pendingBLOOM",
         "outputs": [
           {
             "internalType": "uint256",
@@ -5999,7 +5999,7 @@
             "type": "address"
           }
         ],
-        "name": "pendingTOMB",
+        "name": "pendingBLOOM",
         "outputs": [
           {
             "internalType": "uint256",
@@ -6485,7 +6485,7 @@
             "type": "address"
           }
         ],
-        "name": "pendingTOMB",
+        "name": "pendingBLOOM",
         "outputs": [
           {
             "internalType": "uint256",
@@ -6976,7 +6976,7 @@
             "type": "address"
           }
         ],
-        "name": "pendingTOMB",
+        "name": "pendingBLOOM",
         "outputs": [
           {
             "internalType": "uint256",
@@ -7467,7 +7467,7 @@
             "type": "address"
           }
         ],
-        "name": "pendingTOMB",
+        "name": "pendingBLOOM",
         "outputs": [
           {
             "internalType": "uint256",

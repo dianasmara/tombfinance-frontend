@@ -39,7 +39,7 @@ const Pit: React.FC = () => {
     async (amount: string) => {
       const tx = await tombFinance.buyBonds(amount);
       addTransaction(tx, {
-        summary: `Buy ${Number(amount).toFixed(2)} TBOND with ${amount} TOMB`,
+        summary: `Buy ${Number(amount).toFixed(2)} TBOND with ${amount} BLOOM`,
       });
     },
     [tombFinance, addTransaction],
@@ -68,14 +68,14 @@ const Pit: React.FC = () => {
               <StyledCardWrapper>
                 <ExchangeCard
                   action="Purchase"
-                  fromToken={tombFinance.TOMB}
-                  fromTokenName="TOMB"
+                  fromToken={tombFinance.BLOOM}
+                  fromTokenName="BLOOM"
                   toToken={tombFinance.TBOND}
                   toTokenName="TBOND"
                   priceDesc={
                     !isBondPurchasable
-                      ? 'TOMB is over peg'
-                      : `${Math.floor(100 / Number(bondStat.priceInDollars) - 100)}% return when TOMB > 1.1FTM`
+                      ? 'BLOOM is over peg'
+                      : `${Math.floor(100 / Number(bondStat.priceInDollars) - 100)}% return when BLOOM > 1.1FTM`
                   }
                   onExchange={handleBuyBonds}
                   disabled={!bondStat || isBondRedeemable}
@@ -83,14 +83,14 @@ const Pit: React.FC = () => {
               </StyledCardWrapper>
               <StyledStatsWrapper>
                 <ExchangeStat
-                  tokenName="TOMB"
+                  tokenName="BLOOM"
                   description="Last-Hour TWAP Price"
                   price={getDisplayBalance(cashPrice, 18, 2)}
                 />
                 <Spacer size="md" />
                 <ExchangeStat
                   tokenName="TBOND"
-                  description="Current Price: (TOMB)^2"
+                  description="Current Price: (BLOOM)^2"
                   price={Number(bondStat?.tokenInFtm).toFixed(2) || '-'}
                 />
               </StyledStatsWrapper>
@@ -99,12 +99,12 @@ const Pit: React.FC = () => {
                   action="Redeem"
                   fromToken={tombFinance.TBOND}
                   fromTokenName="TBOND"
-                  toToken={tombFinance.TOMB}
-                  toTokenName="TOMB"
+                  toToken={tombFinance.BLOOM}
+                  toTokenName="BLOOM"
                   priceDesc={`${getDisplayBalance(bondBalance)} TBOND Available`}
                   onExchange={handleRedeemBonds}
                   disabled={!bondStat || bondBalance.eq(0) || !isBondRedeemable}
-                  disabledDescription={!isBondRedeemable ? `Enabled when TOMB > ${BOND_REDEEM_PRICE}FTM` : null}
+                  disabledDescription={!isBondRedeemable ? `Enabled when BLOOM > ${BOND_REDEEM_PRICE}FTM` : null}
                 />
               </StyledCardWrapper>
             </StyledBond>

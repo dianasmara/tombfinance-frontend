@@ -13,7 +13,7 @@ import IUniswapV2PairABI from './IUniswapV2Pair.abi.json';
 import config, { bankDefinitions } from '../config';
 import moment from 'moment';
 import { parseUnits } from 'ethers/lib/utils';
-import { FTM_TICKER, SPOOKY_ROUTER_ADDR, TOMB_TICKER } from '../utils/constants';
+import { FTM_TICKER, SPOOKY_ROUTER_ADDR, BLOOM_TICKER } from '../utils/constants';
 /**
  * An API module of Tomb Finance contracts.
  * All contract-interacting domain logic should be defined in here.
@@ -27,8 +27,8 @@ export class TombFinance {
   externalTokens: { [name: string]: ERC20 };
   masonryVersionOfUser?: string;
 
-  TOMBWFTM_LP: Contract;
-  TOMB: ERC20;
+  BLOOMWFTM_LP: Contract;
+  BLOOM: ERC20;
   TSHARE: ERC20;
   TBOND: ERC20;
   FTM: ERC20;
@@ -46,13 +46,13 @@ export class TombFinance {
     for (const [symbol, [address, decimal]] of Object.entries(externalTokens)) {
       this.externalTokens[symbol] = new ERC20(address, provider, symbol, decimal);
     }
-    this.TOMB = new ERC20(deployments.tomb.address, provider, 'TOMB');
+    this.BLOOM = new ERC20(deployments.tomb.address, provider, 'BLOOM');
     this.TSHARE = new ERC20(deployments.tShare.address, provider, 'TSHARE');
     this.TBOND = new ERC20(deployments.tBond.address, provider, 'TBOND');
     this.FTM = this.externalTokens['WFTM'];
 
     // Uniswap V2 Pair
-    this.TOMBWFTM_LP = new Contract(externalTokens['TOMB-FTM-LP'][0], IUniswapV2PairABI, provider);
+    this.BLOOMWFTM_LP = new Contract(externalTokens['BLOOM-FTM-LP'][0], IUniswapV2PairABI, provider);
 
     this.config = cfg;
     this.provider = provider;
@@ -69,11 +69,11 @@ export class TombFinance {
     for (const [name, contract] of Object.entries(this.contracts)) {
       this.contracts[name] = contract.connect(this.signer);
     }
-    const tokens = [this.TOMB, this.TSHARE, this.TBOND, ...Object.values(this.externalTokens)];
+    const tokens = [this.BLOOM, this.TSHARE, this.TBOND, ...Object.values(this.externalTokens)];
     for (const token of tokens) {
       token.connect(this.signer);
     }
-    this.TOMBWFTM_LP = this.TOMBWFTM_LP.connect(this.signer);
+    this.BLOOMWFTM_LP = this.BLOOMWFTM_LP.connect(this.signer);
     console.log(`🔓 Wallet is unlocked. Welcome, ${account}!`);
     this.fetchMasonryVersionOfUser()
       .then((version) => (this.masonryVersionOfUser = version))
@@ -94,24 +94,24 @@ export class TombFinance {
   //===================================================================
 
   async getTombStat(): Promise<TokenStat> {
-    const { TombFtmRewardPool, TombFtmLpTombRewardPool, TombFtmLpTombRewardPoolOld } = this.contracts;
-    const supply = await this.TOMB.totalSupply();
-    const tombRewardPoolSupply = await this.TOMB.balanceOf(TombFtmRewardPool.address);
-    const tombRewardPoolSupply2 = await this.TOMB.balanceOf(TombFtmLpTombRewardPool.address);
-    const tombRewardPoolSupplyOld = await this.TOMB.balanceOf(TombFtmLpTombRewardPoolOld.address);
+    const { TombFtmRewardPool, TombFtmLpRewardPool} = this.contracts;
+    const supply = await this.BLOOM.totalSupply();
+    const tombRewardPoolSupply = await this.BLOOM.balanceOf(TombFtmRewardPool.address);
+    const tombRewardPoolSupply2 = await this.BLOOM.balanceOf(TombFtmLpRewardPool.address);
+    // const tombRewardPoolSupplyOld = await this.BLOOM.balanceOf(TombFtmLpTombRewardPoolOld.address);
     const tombCirculatingSupply = supply
       .sub(tombRewardPoolSupply)
-      .sub(tombRewardPoolSupply2)
-      .sub(tombRewardPoolSupplyOld);
-    const priceInFTM = await this.getTokenPriceFromPancakeswap(this.TOMB);
+      .sub(tombRewardPoolSupply2);
+      // .sub(tombRewardPoolSupplyOld);
+    const priceInFTM = await this.getTokenPriceFromPancakeswap(this.BLOOM);
     const priceOfOneFTM = await this.getWFTMPriceFromPancakeswap();
     const priceOfTombInDollars = (Number(priceInFTM) * Number(priceOfOneFTM)).toFixed(2);
 
     return {
       tokenInFtm: priceInFTM,
       priceInDollars: priceOfTombInDollars,
-      totalSupply: getDisplayBalance(supply, this.TOMB.decimal, 0),
-      circulatingSupply: getDisplayBalance(tombCirculatingSupply, this.TOMB.decimal, 0),
+      totalSupply: getDisplayBalance(supply, this.BLOOM.decimal, 0),
+      circulatingSupply: getDisplayBalance(tombCirculatingSupply, this.BLOOM.decimal, 0),
     };
   }
 
@@ -124,8 +124,8 @@ export class TombFinance {
     const lpToken = this.externalTokens[name];
     const lpTokenSupplyBN = await lpToken.totalSupply();
     const lpTokenSupply = getDisplayBalance(lpTokenSupplyBN, 18);
-    const token0 = name.startsWith('TOMB') ? this.TOMB : this.TSHARE;
-    const isTomb = name.startsWith('TOMB');
+    const token0 = name.startsWith('BLOOM') ? this.BLOOM : this.TSHARE;
+    const isTomb = name.startsWith('BLOOM');
     const tokenAmountBN = await token0.balanceOf(lpToken.address);
     const tokenAmount = getDisplayBalance(tokenAmountBN, 18);
 
@@ -158,8 +158,8 @@ export class TombFinance {
     const tombStat = await this.getTombStat();
     const bondTombRatio = await Treasury.getBondPremiumRate();
     let modifier = 1; // keep to 1 if no bondPremium is to be used
-    if (getBalance(bondTombRatio, this.TOMB.decimal) > 0) {
-      modifier = getBalance(bondTombRatio, this.TOMB.decimal);
+    if (getBalance(bondTombRatio, this.BLOOM.decimal) > 0) {
+      modifier = getBalance(bondTombRatio, this.BLOOM.decimal);
     }
     const bondPriceInFTM = (Number(tombStat.tokenInFtm) * modifier).toFixed(2);
     const priceOfTBondInDollars = (Number(tombStat.priceInDollars) * modifier).toFixed(2);
@@ -200,16 +200,16 @@ export class TombFinance {
 
   async getTombStatInEstimatedTWAP(): Promise<TokenStat> {
     const { SeigniorageOracle, TombFtmRewardPool } = this.contracts;
-    const expectedPrice = await SeigniorageOracle.twap(this.TOMB.address, ethers.utils.parseEther('1'));
+    const expectedPrice = await SeigniorageOracle.twap(this.BLOOM.address, ethers.utils.parseEther('1'));
 
-    const supply = await this.TOMB.totalSupply();
-    const tombRewardPoolSupply = await this.TOMB.balanceOf(TombFtmRewardPool.address);
+    const supply = await this.BLOOM.totalSupply();
+    const tombRewardPoolSupply = await this.BLOOM.balanceOf(TombFtmRewardPool.address);
     const tombCirculatingSupply = supply.sub(tombRewardPoolSupply);
     return {
       tokenInFtm: getDisplayBalance(expectedPrice),
       priceInDollars: getDisplayBalance(expectedPrice),
-      totalSupply: getDisplayBalance(supply, this.TOMB.decimal, 0),
-      circulatingSupply: getDisplayBalance(tombCirculatingSupply, this.TOMB.decimal, 0),
+      totalSupply: getDisplayBalance(supply, this.BLOOM.decimal, 0),
+      circulatingSupply: getDisplayBalance(tombCirculatingSupply, this.BLOOM.decimal, 0),
     };
   }
 
@@ -230,7 +230,7 @@ export class TombFinance {
     const depositTokenPrice = await this.getDepositTokenPriceInDollars(bank.depositTokenName, depositToken);
     const stakeInPool = await depositToken.balanceOf(bank.address);
     const TVL = Number(depositTokenPrice) * Number(getDisplayBalance(stakeInPool, depositToken.decimal));
-    const stat = bank.earnTokenName === 'TOMB' ? await this.getTombStat() : await this.getShareStat();
+    const stat = bank.earnTokenName === 'BLOOM' ? await this.getTombStat() : await this.getShareStat();
     const tokenPerSecond = await this.getTokenPerSecond(
       bank.earnTokenName,
       bank.contract,
@@ -266,12 +266,12 @@ export class TombFinance {
     poolContract: Contract,
     depositTokenName: string,
   ) {
-    if (earnTokenName === 'TOMB') {
+    if (earnTokenName === 'BLOOM') {
       if (!contractName.endsWith('TombRewardPool')) {
-        const rewardPerSecond = await poolContract.tombPerSecond();
+        const rewardPerSecond = await poolContract.bloomPerSecond();
         if (depositTokenName === 'WFTM') {
-          return rewardPerSecond.mul(6000).div(11000).div(24);
-        } else if (depositTokenName === 'BOO') {
+          return rewardPerSecond.mul(5000).div(11000).div(24);
+        } else if (depositTokenName === 'BLOOM-FTM-LP') {
           return rewardPerSecond.mul(2500).div(11000).div(24);
         } else if (depositTokenName === 'ZOO') {
           return rewardPerSecond.mul(1000).div(11000).div(24);
@@ -284,12 +284,12 @@ export class TombFinance {
       const startDateTime = new Date(poolStartTime.toNumber() * 1000);
       const FOUR_DAYS = 4 * 24 * 60 * 60 * 1000;
       if (Date.now() - startDateTime.getTime() > FOUR_DAYS) {
-        return await poolContract.epochTombPerSecond(1);
+        return await poolContract.bloomPerSecond(1);
       }
       return await poolContract.epochTombPerSecond(0);
     }
     const rewardPerSecond = await poolContract.tSharePerSecond();
-    if (depositTokenName.startsWith('TOMB')) {
+    if (depositTokenName.startsWith('TOMB-FTM-LP')) {
       return rewardPerSecond.mul(35500).div(59500);
     } else {
       return rewardPerSecond.mul(24000).div(59500);
@@ -310,8 +310,8 @@ export class TombFinance {
     if (tokenName === 'WFTM') {
       tokenPrice = priceOfOneFtmInDollars;
     } else {
-      if (tokenName === 'TOMB-FTM-LP') {
-        tokenPrice = await this.getLPTokenPrice(token, this.TOMB, true);
+      if (tokenName === 'BLOOM-FTM-LP') {
+        tokenPrice = await this.getLPTokenPrice(token, this.BLOOM, true);
       } else if (tokenName === 'TSHARE-FTM-LP') {
         tokenPrice = await this.getLPTokenPrice(token, this.TSHARE, false);
       } else if (tokenName === 'SHIBA') {
@@ -406,8 +406,8 @@ export class TombFinance {
   ): Promise<BigNumber> {
     const pool = this.contracts[poolName];
     try {
-      if (earnTokenName === 'TOMB') {
-        return await pool.pendingTOMB(poolId, account);
+      if (earnTokenName === 'BLOOM') {
+        return await pool.pendingBLOOM(poolId, account);
       } else {
         return await pool.pendingShare(poolId, account);
       }
@@ -555,11 +555,11 @@ export class TombFinance {
     const lastRewardsReceived = lastHistory[1];
 
     const TSHAREPrice = (await this.getShareStat()).priceInDollars;
-    const TOMBPrice = (await this.getTombStat()).priceInDollars;
+    const BLOOMPrice = (await this.getTombStat()).priceInDollars;
     const epochRewardsPerShare = lastRewardsReceived / 1e18;
 
     //Mgod formula
-    const amountOfRewardsPerDay = epochRewardsPerShare * Number(TOMBPrice) * 4;
+    const amountOfRewardsPerDay = epochRewardsPerShare * Number(BLOOMPrice) * 4;
     const masonrytShareBalanceOf = await this.TSHARE.balanceOf(Masonry.address);
     const masonryTVL = Number(getDisplayBalance(masonrytShareBalanceOf, this.TSHARE.decimal)) * Number(TSHAREPrice);
     const realAPR = ((amountOfRewardsPerDay * 100) / masonryTVL) * 365;
@@ -720,8 +720,8 @@ export class TombFinance {
     if (ethereum && ethereum.networkVersion === config.chainId.toString()) {
       let asset;
       let assetUrl;
-      if (assetName === 'TOMB') {
-        asset = this.TOMB;
+      if (assetName === 'BLOOM') {
+        asset = this.BLOOM;
         assetUrl = 'https://tomb.finance/presskit/tomb_icon_noBG.png';
       } else if (assetName === 'TSHARE') {
         asset = this.TSHARE;
@@ -780,7 +780,7 @@ export class TombFinance {
     if (tokenName === FTM_TICKER) {
       estimate = await zapper.estimateZapIn(lpToken.address, SPOOKY_ROUTER_ADDR, parseUnits(amount, 18));
     } else {
-      const token = tokenName === TOMB_TICKER ? this.TOMB : this.TSHARE;
+      const token = tokenName === BLOOM_TICKER ? this.BLOOM : this.TSHARE;
       estimate = await zapper.estimateZapInToken(
         token.address,
         lpToken.address,
@@ -799,7 +799,7 @@ export class TombFinance {
       };
       return await zapper.zapIn(lpToken.address, SPOOKY_ROUTER_ADDR, this.myAccount, overrides);
     } else {
-      const token = tokenName === TOMB_TICKER ? this.TOMB : this.TSHARE;
+      const token = tokenName === BLOOM_TICKER ? this.BLOOM : this.TSHARE;
       return await zapper.zapInToken(
         token.address,
         parseUnits(amount, 18),

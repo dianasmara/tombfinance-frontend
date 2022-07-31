@@ -43,7 +43,7 @@ const useStyles = makeStyles((theme) => ({
 const Home = () => {
   const classes = useStyles();
   const TVL = useTotalValueLocked();
-  const tombFtmLpStats = useLpStats('TOMB-FTM-LP');
+  const tombFtmLpStats = useLpStats('BLOOM-FTM-LP');
   const tShareFtmLpStats = useLpStats('TSHARE-FTM-LP');
   const tombStats = useTombStats();
   const tShareStats = usetShareStats();
@@ -98,7 +98,7 @@ const Home = () => {
   );
   const tBondTotalSupply = useMemo(() => (tBondStats ? String(tBondStats.totalSupply) : null), [tBondStats]);
 
-  const tombLpZap = useZap({ depositTokenName: 'TOMB-FTM-LP' });
+  const tombLpZap = useZap({ depositTokenName: 'BLOOM-FTM-LP' });
   const tshareLpZap = useZap({ depositTokenName: 'TSHARE-FTM-LP' });
 
   const [onPresentTombZap, onDissmissTombZap] = useModal(
@@ -109,7 +109,7 @@ const Home = () => {
         tombLpZap.onZap(zappingToken, tokenName, amount);
         onDissmissTombZap();
       }}
-      tokenName={'TOMB-FTM-LP'}
+      tokenName={'BLOOM-FTM-LP'}
     />,
   );
 
@@ -141,7 +141,7 @@ const Home = () => {
               <h2>Welcome to Tomb Finance</h2>
               <p>The first algorithmic stablecoin on Fantom Opera, pegged to the price of 1 FTM via seigniorage.</p>
               <p>
-                Stake your TSHARE in the Masonry to earn inflationary TOMB rewards or provide liquidity on pairs and
+                Stake your TSHARE in the Masonry to earn inflationary BLOOM rewards or provide liquidity on pairs and
                 start earning today!
               </p>
             </Box>
@@ -176,7 +176,7 @@ const Home = () => {
                 variant="contained"
                 style={{ marginRight: '10px' }}
               >
-                Buy TOMB
+                Buy BLOOM
               </Button>
               <Button variant="contained" target="_blank" href={buyTShareAddress} className={classes.button}>
                 Buy TSHARE
@@ -185,14 +185,14 @@ const Home = () => {
           </Card>
         </Grid>
 
-        {/* TOMB */}
+        {/* BLOOM */}
         <Grid item xs={12} sm={4}>
           <Card>
             <CardContent align="center" style={{ position: 'relative' }}>
-              <h2>TOMB</h2>
+              <h2>BLOOM</h2>
               <Button
                 onClick={() => {
-                  tombFinance.watchAssetInMetamask('TOMB');
+                  tombFinance.watchAssetInMetamask('BLOOM');
                 }}
                 color="primary"
                 variant="outlined"
@@ -203,7 +203,7 @@ const Home = () => {
               </Button>
               <Box mt={2}>
                 <CardIcon>
-                  <TokenSymbol symbol="TOMB" />
+                  <TokenSymbol symbol="BLOOM" />
                 </CardIcon>
               </Box>
               Current Price
@@ -300,10 +300,10 @@ const Home = () => {
         <Grid item xs={12} sm={6}>
           <Card>
             <CardContent align="center">
-              <h2>TOMB-FTM Spooky LP</h2>
+              <h2>BLOOM-FTM Spooky LP</h2>
               <Box mt={2}>
                 <CardIcon>
-                  <TokenSymbol symbol="TOMB-FTM-LP" />
+                  <TokenSymbol symbol="BLOOM-FTM-LP" />
                 </CardIcon>
               </Box>
               <Box mt={2}>
@@ -313,7 +313,7 @@ const Home = () => {
               </Box>
               <Box mt={2}>
                 <span style={{ fontSize: '26px' }}>
-                  {tombLPStats?.tokenAmount ? tombLPStats?.tokenAmount : '-.--'} TOMB /{' '}
+                  {tombLPStats?.tokenAmount ? tombLPStats?.tokenAmount : '-.--'} BLOOM /{' '}
                   {tombLPStats?.ftmAmount ? tombLPStats?.ftmAmount : '-.--'} FTM
                 </span>
               </Box>

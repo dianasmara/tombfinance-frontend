@@ -14,12 +14,13 @@ import wftmLogo from '../../assets/img/ftm_logo_blue.svg';
 import booLogo from '../../assets/img/spooky.png';
 import zooLogo from '../../assets/img/zoo_logo.svg';
 import shibaLogo from '../../assets/img/shiba_logo.svg';
+import usdcLogo from '../../assets/img/USDC.png';
 
 const logosBySymbol: { [title: string]: string } = {
   //Real tokens
   //=====================
-  TOMB: tombLogo,
-  TOMBPNG: tombLogoPNG,
+  BLOOM: tombLogo,
+  BLOOMPNG: tombLogoPNG,
   TSHAREPNG: tShareLogoPNG,
   TSHARE: tShareLogo,
   TBOND: tBondLogo,
@@ -27,7 +28,8 @@ const logosBySymbol: { [title: string]: string } = {
   BOO: booLogo,
   SHIBA: shibaLogo,
   ZOO: zooLogo,
-  'TOMB-FTM-LP': tombFtmLpLogo,
+  USDC: usdcLogo,
+  'BLOOM-FTM-LP': tombFtmLpLogo,
   'TSHARE-FTM-LP': tshareFtmLpLogo,
 };
 
